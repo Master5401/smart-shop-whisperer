@@ -3,7 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Bot, Send, Mic, MicOff, Sparkles, MessageCircle, ShoppingCart, ArrowLeftRight, Star } from "lucide-react";
+import { Bot, Send, Mic, MicOff, Sparkles, MessageCircle, ShoppingCart, ScanLine, CreditCard } from "lucide-react";
+import { useCart } from "@/contexts/CartContext";
 
 interface Message {
   id: string;
@@ -19,13 +20,13 @@ const AIAssistant = () => {
     {
       id: '1',
       type: 'ai',
-      content: "Hi! I'm your AI shopping assistant. I can help you with product questions, comparisons, and recommendations. What would you like to know about this smartphone?",
+      content: "Hi! I'm your Amazon Go store assistant. I can help you find items, check your cart, understand our scan-and-go system, and answer questions about payment and exit procedures.",
       timestamp: new Date(),
       suggestions: [
-        "Is this good for photography?",
-        "Compare with iPhone 15",
-        "What do customers say about battery life?",
-        "Is this suitable for gaming?"
+        "How does scanning work?",
+        "Check my cart status",
+        "How do I pay for items?",
+        "Can I exit the store?"
       ]
     }
   ]);
@@ -33,6 +34,7 @@ const AIAssistant = () => {
   const [isListening, setIsListening] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const { cart, inventory, getUnpaidItems } = useCart();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -49,22 +51,44 @@ const AIAssistant = () => {
     setTimeout(() => {
       let aiResponse = "";
       let suggestions: string[] = [];
-
-      if (userMessage.toLowerCase().includes("photography") || userMessage.toLowerCase().includes("camera")) {
-        aiResponse = "This smartphone excels in photography with its Pro Triple Camera System! It features a 48MP main camera with advanced Night mode, 4K video recording, and AI-enhanced image processing. Based on 1,200+ customer reviews, 89% rate the camera quality as 'excellent' for both photos and videos.";
-        suggestions = ["Show me camera samples", "Compare camera with Galaxy S24", "What about low-light performance?"];
-      } else if (userMessage.toLowerCase().includes("battery")) {
-        aiResponse = "The battery life is impressive! With typical usage, you'll get a full day (14-16 hours) of use. The 4,000mAh battery supports fast charging (0-80% in 45 minutes) and wireless charging. Customer reviews consistently mention battery longevity as a strong point.";
-        suggestions = ["How fast does it charge?", "Wireless charging options?", "Battery vs competitors"];
-      } else if (userMessage.toLowerCase().includes("gaming")) {
-        aiResponse = "Perfect for gaming! The A17 Pro chip delivers console-quality graphics with smooth 120Hz display. It handles all current games at max settings without thermal throttling. Gamers particularly love the responsive touch controls and excellent audio quality.";
-        suggestions = ["Show gaming benchmarks", "What games run best?", "Compare gaming performance"];
-      } else if (userMessage.toLowerCase().includes("compare") || userMessage.toLowerCase().includes("iphone")) {
-        aiResponse = "Great question! Compared to the iPhone 15, this device offers similar performance at $300 less. Key differences: slightly larger screen (6.7\" vs 6.1\"), comparable camera quality, and longer battery life. The iPhone has better iOS ecosystem integration, while this offers more customization options.";
-        suggestions = ["Show detailed comparison", "What about software updates?", "Which has better resale value?"];
+      const unpaidItems = getUnpaidItems();
+      
+      if (userMessage.toLowerCase().includes("cart") || userMessage.toLowerCase().includes("items")) {
+        if (cart.length === 0) {
+          aiResponse = "Your cart is currently empty. Start by scanning items or browsing our available products in the 'Scan Items' tab!";
+          suggestions = ["How to scan items?", "Show available products", "What's in stock?"];
+        } else {
+          aiResponse = `You have ${cart.length} items in your cart. ${unpaidItems.length > 0 ? `${unpaidItems.length} items need payment before you can exit the store.` : 'All items are paid for!'}`;
+          suggestions = ["Show cart details", "How to pay?", "Can I exit now?"];
+        }
+      } else if (userMessage.toLowerCase().includes("scan") || userMessage.toLowerCase().includes("barcode")) {
+        aiResponse = "To scan items, go to the 'Scan Items' tab. You can either scan a barcode with your camera or manually enter the barcode number. Each item will be automatically added to your cart.";
+        suggestions = ["What barcodes are available?", "Can I add multiple items?", "How to remove items?"];
+      } else if (userMessage.toLowerCase().includes("pay") || userMessage.toLowerCase().includes("payment")) {
+        if (unpaidItems.length === 0) {
+          aiResponse = "All your items are already paid for! You can exit the store safely.";
+          suggestions = ["Check exit status", "How does exit work?", "Can I add more items?"];
+        } else {
+          aiResponse = `You have ${unpaidItems.length} unpaid items totaling $${unpaidItems.reduce((total, item) => total + (item.price * item.quantity), 0).toFixed(2)}. Go to 'My Cart' tab to complete payment.`;
+          suggestions = ["Go to cart", "What payment methods?", "How long does payment take?"];
+        }
+      } else if (userMessage.toLowerCase().includes("exit") || userMessage.toLowerCase().includes("leave")) {
+        if (unpaidItems.length === 0) {
+          aiResponse = "You're all set to exit! All items in your cart have been paid for. Go to the 'Store Exit' tab and you'll see the green approval to leave.";
+          suggestions = ["Check exit status", "How does detection work?", "What if I change my mind?"];
+        } else {
+          aiResponse = `You cannot exit yet - you have ${unpaidItems.length} unpaid items. Our sensors will detect unpaid items and prevent you from leaving. Please pay for all items first.`;
+          suggestions = ["Go to payment", "How does detection work?", "What happens if I try to leave?"];
+        }
+      } else if (userMessage.toLowerCase().includes("price") || userMessage.toLowerCase().includes("cost")) {
+        aiResponse = "I can help you check prices! Our available items range from $2.99 to $6.49. You can see all prices in the 'Scan Items' section, or ask me about specific items.";
+        suggestions = ["Show cheapest items", "Show most expensive", "Compare item prices"];
+      } else if (userMessage.toLowerCase().includes("how") && userMessage.toLowerCase().includes("work")) {
+        aiResponse = "Here's how our store works: 1) Scan items to add them to your cart 2) Pay for items in the 'My Cart' tab 3) Exit validation in 'Store Exit' tab ensures all items are paid for. It's that simple!";
+        suggestions = ["Start scanning", "What if I make a mistake?", "Is it really that easy?"];
       } else {
-        aiResponse = "I'd be happy to help! This smartphone offers excellent value with flagship features at a competitive price. It's particularly strong in camera quality, battery life, and performance. What specific aspect would you like to know more about?";
-        suggestions = ["Tell me about the display", "How's the build quality?", "Compare with similar phones", "Customer satisfaction"];
+        aiResponse = "I'm here to help with your Amazon Go store experience! Ask me about scanning items, checking your cart, making payments, or the exit process.";
+        suggestions = ["How to scan items?", "Check my cart", "How to pay?", "Can I exit now?"];
       }
 
       setMessages(prev => [...prev, {
@@ -135,8 +159,8 @@ const AIAssistant = () => {
                   <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse-ai"></div>
                 </div>
                 <div>
-                  <CardTitle className="text-lg text-ai-foreground">AI Shopping Assistant</CardTitle>
-                  <p className="text-xs text-ai-foreground/80">Powered by Smart AI</p>
+                  <CardTitle className="text-lg text-ai-foreground">Store Assistant</CardTitle>
+                  <p className="text-xs text-ai-foreground/80">Amazon Go Experience</p>
                 </div>
               </div>
               <Button 
@@ -152,16 +176,16 @@ const AIAssistant = () => {
             {/* Quick Actions */}
             <div className="flex gap-2 pt-2">
               <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                <MessageCircle className="w-3 h-3 mr-1" />
-                Ask Questions
+                <ScanLine className="w-3 h-3 mr-1" />
+                Scan Help
               </Badge>
               <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                <ArrowLeftRight className="w-3 h-3 mr-1" />
-                Compare
+                <ShoppingCart className="w-3 h-3 mr-1" />
+                Cart Status
               </Badge>
               <Badge variant="secondary" className="text-xs cursor-pointer hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Star className="w-3 h-3 mr-1" />
-                Reviews
+                <CreditCard className="w-3 h-3 mr-1" />
+                Payment
               </Badge>
             </div>
           </CardHeader>
@@ -222,7 +246,7 @@ const AIAssistant = () => {
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyPress={handleKeyPress}
-                    placeholder="Ask about this product..."
+                    placeholder="Ask about scanning, cart, or payments..."
                     className="flex-1"
                   />
                   <Button
@@ -246,7 +270,7 @@ const AIAssistant = () => {
                 
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Sparkles className="w-3 h-3" />
-                  <span>Powered by advanced AI • Voice & text supported</span>
+                  <span>Amazon Go Assistant • Scan, shop, pay & go</span>
                 </div>
               </div>
             </div>
