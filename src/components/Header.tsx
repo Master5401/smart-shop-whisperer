@@ -1,4 +1,4 @@
-import { Store, ShoppingCart } from "lucide-react";
+import { Zap, ShoppingCart } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 
 const Header = () => {
@@ -10,10 +10,19 @@ const Header = () => {
       <div className="max-w-7xl mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <Store className="h-8 w-8 text-primary" />
+            <div className="relative">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-yellow-500 rounded-xl flex items-center justify-center shadow-lg">
+                <Zap className="w-6 h-6 text-white" />
+              </div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
+                <span className="text-xs font-bold text-blue-900">⚡</span>
+              </div>
+            </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Amazon Go Style Store</h1>
-              <p className="text-sm text-muted-foreground">Scan, Shop, Pay & Go</p>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-yellow-600 bg-clip-text text-transparent">
+                Walmart Blitz
+              </h1>
+              <p className="text-sm text-muted-foreground">Shop at Lightning Speed</p>
             </div>
           </div>
           

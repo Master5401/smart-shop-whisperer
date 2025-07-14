@@ -20,7 +20,7 @@ const AIAssistant = () => {
     {
       id: '1',
       type: 'ai',
-      content: "Hi! I'm your Amazon Go store assistant. I can help you find items, check your cart, understand our scan-and-go system, and answer questions about payment and exit procedures.",
+      content: "Hi! I'm your Walmart Blitz assistant. I can help you find items, check your cart, understand our lightning-fast shopping system, and answer questions about payment and exit procedures.",
       timestamp: new Date(),
       suggestions: [
         "How does scanning work?",
@@ -160,7 +160,7 @@ const AIAssistant = () => {
                 </div>
                 <div>
                   <CardTitle className="text-lg text-ai-foreground">Store Assistant</CardTitle>
-                  <p className="text-xs text-ai-foreground/80">Amazon Go Experience</p>
+                  <p className="text-xs text-ai-foreground/80">Walmart Blitz Experience</p>
                 </div>
               </div>
               <Button 
@@ -270,7 +270,7 @@ const AIAssistant = () => {
                 
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Sparkles className="w-3 h-3" />
-                  <span>Amazon Go Assistant • Scan, shop, pay & go</span>
+                  <span>Walmart Blitz Assistant • Shop at lightning speed</span>
                 </div>
               </div>
             </div>
