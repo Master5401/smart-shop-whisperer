@@ -1,4 +1,4 @@
-# 🧪 Amazon Go App - Testing Guide & Sample Barcodes
+# 🧪 Walmart Blitz App - Testing Guide & Sample Barcodes
 
 ## 📋 Available Sample Barcodes
 
@@ -20,6 +20,20 @@
 ABCD123456789 - Invalid characters
 123456789012  - Wrong length (12 digits instead of 13)
 ```
+
+---
+
+## 🔐 Login Credentials
+
+**Demo Account:**
+- **Username:** `walmart_user`
+- **Password:** `blitz2024`
+
+**Test the login flow:**
+1. Try invalid credentials first (should show error)
+2. Use the "Auto-fill" button for quick demo access
+3. Test password visibility toggle
+4. Verify loading states and animations
 
 ---
 
